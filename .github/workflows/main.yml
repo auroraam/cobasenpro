@@ -27,7 +27,7 @@ jobs:
           cd backend
           npm install
           node server.js &  # Jalankan di background
-          echo $! > backend_pid  # Simpan PID backend
+          echo "BACKEND_PID=$!" >> $GITHUB_ENV  # Simpan PID backend
 
       # 🔹 Tunggu Backend Siap
       - name: Wait for Backend
@@ -44,7 +44,7 @@ jobs:
           cd frontend
           npm install
           npm run dev &  # Jalankan di background
-          echo $! > frontend_pid  # Simpan PID frontend
+          echo "FRONTEND_PID=$!" >> $GITHUB_ENV  # Simpan PID frontend
 
       # 🔹 Tunggu Frontend Siap
       - name: Wait for Frontend
@@ -58,5 +58,6 @@ jobs:
       # 🔹 Matikan Backend dan Frontend setelah testing
       - name: Stop Backend & Frontend
         run: |
-          kill $(cat backend_pid)
-          kill $(cat frontend_pid)
+          echo "Stopping Backend (PID: $BACKEND_PID) & Frontend (PID: $FRONTEND_PID)"
+          kill $BACKEND_PID || echo "Backend already stopped"
+          kill $FRONTEND_PID || echo "Frontend already stopped"
