@@ -1,42 +1,62 @@
-name: Test, Build Senpro B1-14
+name: Test, Build SmartSched
 
 on:
   push:
     branches: [main]
 
-jobs: 
+jobs:
   test-build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [18.x]
+
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup Node.js Environment
+      # 🔹 Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
-          cache-dependency-path: package-lock.json  # Tidak ada folder khusus, langsung gunakan package-lock.json utama
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Project
-        run: npm run build  # Jalankan build, baik untuk Next.js atau proyek lain
-
-      - name: Start Server for Testing
+      # 🔹 Install dan Jalankan Backend
+      - name: Install & Start Backend
         run: |
-          node server.js &  # Jalankan server di background
-          SERVER_PID=$!
+          cd backend
+          npm install
+          node server.js &  # Jalankan di background
+          echo $! > backend_pid  # Simpan PID backend
 
-          # Tunggu server berjalan maksimal 10 detik
+      # 🔹 Tunggu Backend Siap
+      - name: Wait for Backend
+        run: |
           for i in {1..10}; do
             curl -I http://localhost:3000 && break
-            echo "Waiting for server..."
+            echo "Waiting for backend..."
             sleep 2
           done
 
-          # Matikan server setelah selesai testing
-          kill $SERVER_PID
+      # 🔹 Install dan Jalankan Frontend
+      - name: Install & Start Frontend
+        run: |
+          cd frontend
+          npm install
+          npm run dev &  # Jalankan di background
+          echo $! > frontend_pid  # Simpan PID frontend
+
+      # 🔹 Tunggu Frontend Siap
+      - name: Wait for Frontend
+        run: |
+          for i in {1..10}; do
+            curl -I http://localhost:3001 && break  # Ganti dengan port yang dipakai frontend
+            echo "Waiting for frontend..."
+            sleep 2
+          done
+
+      # 🔹 Matikan Backend dan Frontend setelah testing
+      - name: Stop Backend & Frontend
+        run: |
+          kill $(cat backend_pid)
+          kill $(cat frontend_pid)

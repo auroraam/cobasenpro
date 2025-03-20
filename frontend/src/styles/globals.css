@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;700;900&display=swap');
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --font-sans: 'Inter', sans-serif;
+
+  --primary-color: #2592F2;
+  --secondary-color: #7CCCFE;
+  --red-one: #F65B57;
+  --red-two: #FF7875;
+  --orange-one: #FFAC4B;
+  --green-one: #02A75A;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+@layer utilities {
+  .gradient-text {
+    @apply bg-gradient-to-b from-[var(--primary-color)] to-[var(--secondary-color)] text-transparent bg-clip-text;
+  }
+  .primary-text {
+    @apply text-[var(--primary-color)]
+  }
+  .secondary-text {
+    @apply text-[var(--secondary-color)]
+  }
+  .gradient-button {
+    @apply bg-[var(--primary-color)] text-white rounded-full hover:bg-[var(--secondary-color)] transition
+  }
+  .gradient-button-2 {
+    @apply bg-[var(--primary-color)] text-white hover:bg-[var(--secondary-color)] transition
+  }
+}
